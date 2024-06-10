@@ -14,7 +14,7 @@ func (s *Storage) AddNewURL(body []byte) string {
 		URL: string(body[:]),
 	}
 
-	m[newUrl.ID] = newUrl.URL
+	m[newURL.ID] = newURL.URL
 	return newUrl.ID
 }
 
