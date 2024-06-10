@@ -7,9 +7,9 @@ type Storage struct {
 
 var m = map[string]string{}
 
-func (s *Storage) AddNewUrl(body []byte) string {
+func (s *Storage) AddNewURL(body []byte) string {
 
-	newUrl := &Storage{
+	newURl := &Storage{
 		ID:  "/EwHXdJfB",
 		URL: string(body[:]),
 	}
