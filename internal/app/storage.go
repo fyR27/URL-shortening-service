@@ -9,7 +9,7 @@ var m = map[string]string{}
 
 func (s *Storage) AddNewURL(body []byte) string {
 
-	newURl := &Storage{
+	newURL := &Storage{
 		ID:  "/EwHXdJfB",
 		URL: string(body[:]),
 	}
