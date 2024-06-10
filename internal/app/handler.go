@@ -16,7 +16,7 @@ func PostHandle(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	data := []byte("http://localhost:8080" + string(s.AddNewUrl(body)))
+	data := []byte("http://localhost:8080" + string(s.AddNewURL(body)))
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
