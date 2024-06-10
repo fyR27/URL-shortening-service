@@ -11,17 +11,15 @@ func PostHandle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		panic(err)
 	}
 
+	data := []byte("localhost:8080" + string(s.AddNewUrl(body)))
+
 	w.Header().Set("Content-Type", "text/plain")
-
 	w.WriteHeader(http.StatusCreated)
-
-	data := []byte("localhost:8080" + s.AddNewUrl(body))
 
 	if _, err := w.Write(data); err != nil {
 		panic(err)
@@ -34,12 +32,10 @@ func GetHandle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	data := s.FindAddr("/EwHXdJfB")
+
 	w.Header().Set("Content-Type", "text/plain")
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	http.Redirect(w, r, s.FindAddr(string(body[:])), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 }
