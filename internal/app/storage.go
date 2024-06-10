@@ -15,7 +15,7 @@ func (s *Storage) AddNewURL(body []byte) string {
 	}
 
 	m[newURL.ID] = newURL.URL
-	return newUrl.ID
+	return newURL.ID
 }
 
 func (s *Storage) FindAddr(url string) string {
