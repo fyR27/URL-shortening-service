@@ -7,23 +7,20 @@ type Storage struct {
 
 var m = map[string]string{}
 
-func (s *Storage) AddNewUrl(body []byte) string {
+func (s *Storage) AddNewURL(body []byte) string {
 
-	newUrl := &Storage{
+	newURL := &Storage{
 		ID:  "/EwHXdJfB",
 		URL: string(body[:]),
 	}
 
-	m[newUrl.ID] = newUrl.URL
-	return newUrl.ID
+	m[newURL.ID] = newURL.URL
+	return newURL.ID
 }
 
 func (s *Storage) FindAddr(url string) string {
-	var key string
-	for i, v := range m {
-		if i == url {
-			key = v
-		}
+	if value, ok := m[url]; ok {
+		return value
 	}
-	return key
+	return url
 }
