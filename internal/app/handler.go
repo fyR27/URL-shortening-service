@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -16,7 +17,7 @@ func PostHandle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	data := []byte("http://localhost:8080/" + p.AddNewURL(body))
+	data := []byte("http://localhost:8080" + p.AddNewURL(body))
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
@@ -33,7 +34,8 @@ func GetHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := p.FindAddr(p.ID)
+	data := p.FindAddr(r.URL.Path)
+	fmt.Println(data)
 
 	http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 }
