@@ -14,16 +14,20 @@ type ParserURL struct {
 var storage = map[string]string{}
 
 func (p *ParserURL) AddNewURL(body []byte) string {
+
 	newURL := &ParserURL{
-		ID:  uuid.NewString(),
+		ID:  "/" + uuid.NewString(),
 		URL: string(body[:]),
 	}
 	storage[newURL.ID] = newURL.URL
 	fmt.Println(uuid.SetNodeID([]byte(newURL.URL)))
+
 	return newURL.ID
 }
 
 func (p *ParserURL) FindAddr(url string) string {
+	fmt.Println(url)
+	fmt.Println(storage)
 	if value, ok := storage[url]; ok {
 		return value
 	}
