@@ -9,7 +9,7 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.PostHandle)
-	mux.HandleFunc("/{id}", app.GetHandle)
+	mux.HandleFunc("GET /{id}", app.GetHandle)
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		panic(err)
