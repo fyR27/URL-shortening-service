@@ -97,7 +97,7 @@ func TestGetHandle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			newUrl := "/" + uuid.NewString()
-			storage[newUrl] = "yandex.ru"
+			storage[newUrl] = tt.want.body
 
 			request, _ := http.NewRequest(tt.want.method, tt.want.host+newUrl, nil)
 			w := httptest.NewRecorder()
