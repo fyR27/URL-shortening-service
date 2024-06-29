@@ -6,7 +6,7 @@ import (
 )
 
 func PostHandle(w http.ResponseWriter, r *http.Request) {
-	var s Storage
+	var p ParserURL
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -16,7 +16,7 @@ func PostHandle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	data := []byte("http://localhost:8080" + string(s.AddNewURL(body)))
+	data := []byte("http://localhost:8080" + p.AddNewURL(body))
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
@@ -27,13 +27,13 @@ func PostHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetHandle(w http.ResponseWriter, r *http.Request) {
-	var s Storage
+	var p ParserURL
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	data := s.FindAddr("/EwHXdJfB")
+	data := p.FindAddr(r.URL.Path)
 
 	http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 }
