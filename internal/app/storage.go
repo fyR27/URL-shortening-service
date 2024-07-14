@@ -1,33 +1,36 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 )
 
-type ParserURL struct {
+type ParsedURL struct {
 	ID  string
 	URL string
 }
 
-var storage = map[string]string{}
+type Storage struct {
+	store map[string]string
+}
 
-func (p *ParserURL) AddNewURL(body []byte) string {
+func NewStore() *Storage {
+	return &Storage{
+		store: make(map[string]string),
+	}
+}
 
-	newURL := &ParserURL{
-		ID:  "/" + uuid.NewString(),
+func (s *Storage) AddNewURL(body []byte) string {
+	newURL := &ParsedURL{
+		ID:  uuid.NewString(),
 		URL: string(body[:]),
 	}
-	storage[newURL.ID] = newURL.URL
-	fmt.Println(uuid.SetNodeID([]byte(newURL.URL)))
-
+	s.store[newURL.ID] = newURL.URL
 	return newURL.ID
 }
 
-func (p *ParserURL) FindAddr(url string) string {
-	if value, ok := storage[url]; ok {
+func (s *Storage) FindAddr(url string) string {
+	if value, ok := s.store[url]; ok {
 		return value
 	}
-	return url
+	return "Bad id"
 }

@@ -5,35 +5,38 @@ import (
 	"net/http"
 )
 
-func PostHandle(w http.ResponseWriter, r *http.Request) {
-	var p ParserURL
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
+func MakePostHandle(store *Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	data := []byte("http://localhost:8080" + p.AddNewURL(body))
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusCreated)
+		data := []byte("http://localhost:8080" + store.AddNewURL(body))
 
-	if _, err := w.Write(data); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusCreated)
+
+		if _, err := w.Write(data); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 }
 
-func GetHandle(w http.ResponseWriter, r *http.Request) {
-	var p ParserURL
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+func MakeGetHandle(store *Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		data := store.FindAddr(r.URL.Path)
+
+		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
-
-	data := p.FindAddr(r.URL.Path)
-
-	http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 }

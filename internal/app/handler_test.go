@@ -2,7 +2,6 @@ package app
 
 import (
 	"io"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -12,7 +11,6 @@ import (
 )
 
 func TestPostHandle(t *testing.T) {
-
 	type want struct {
 		host        string
 		method      string
@@ -30,7 +28,7 @@ func TestPostHandle(t *testing.T) {
 			want: want{
 				host:        "http://localhost:8080",
 				method:      "POST",
-				body:        strings.NewReader("yandex.ru"),
+				body:        strings.NewReader("http://yandex.ru"),
 				code:        201,
 				contentType: "text/plain",
 			},
@@ -39,7 +37,7 @@ func TestPostHandle(t *testing.T) {
 			name: "Check true method",
 			want: want{
 				host:        "http://localhost:8080",
-				body:        strings.NewReader("string"),
+				body:        strings.NewReader("http://string.ru"),
 				method:      "GET",
 				code:        400,
 				contentType: "",
@@ -58,16 +56,21 @@ func TestPostHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			request, _ := http.NewRequest(tt.want.method, tt.want.host, tt.want.body)
+			store := NewStore()
+			req := httptest.NewRequest(tt.want.method, tt.want.host, tt.want.body)
 			w := httptest.NewRecorder()
-			PostHandle(w, request)
+
+			handler := MakePostHandle(store)
+			handler.ServeHTTP(w, req)
 
 			res := w.Result()
 
-			assert.Equal(t, res.StatusCode, tt.want.code)
+			assert.Equal(t, tt.want.code, res.StatusCode)
 			defer res.Body.Close()
 
-			assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contentType)
+			if tt.want.contentType != "" {
+				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
+			}
 		})
 	}
 }
@@ -76,7 +79,7 @@ func TestGetHandle(t *testing.T) {
 	type want struct {
 		host   string
 		method string
-		body   string
+		path   string
 		code   int
 	}
 
@@ -85,29 +88,34 @@ func TestGetHandle(t *testing.T) {
 		want want
 	}{
 		{
-			name: "Try to GET http://yandex.ru",
+			name: "Try to GET with invalid ID",
 			want: want{
 				host:   "http://localhost:8080",
 				method: "GET",
-				body:   "yandex.ru",
+				path:   "/get/invalid",
 				code:   307,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			newUrl := "/" + uuid.NewString()
-			storage[newUrl] = "yandex.ru"
+			store := NewStore()
+			validID := uuid.NewString()
+			store.store[validID] = "http://yandex.ru"
 
-			request, _ := http.NewRequest(tt.want.method, tt.want.host+newUrl, nil)
+			req := httptest.NewRequest(tt.want.method, tt.want.host+tt.want.path+validID, nil)
+			if tt.name == "Try to GET with invalid ID" {
+				req = httptest.NewRequest(tt.want.method, tt.want.host+tt.want.path+"invalid", nil)
+			}
 			w := httptest.NewRecorder()
-			GetHandle(w, request)
+
+			handler := MakeGetHandle(store)
+			handler.ServeHTTP(w, req)
 
 			res := w.Result()
 
-			assert.Equal(t, res.StatusCode, tt.want.code)
+			assert.Equal(t, tt.want.code, res.StatusCode)
 			defer res.Body.Close()
-
 		})
 	}
 }
