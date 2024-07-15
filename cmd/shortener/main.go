@@ -6,9 +6,10 @@ import (
 )
 
 func main() {
+	store := app.NewStorage()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", app.PostHandle)
-	mux.HandleFunc("GET /{id}", app.GetHandle)
+	mux.HandleFunc("POST /", app.MakePostHandle(store))
+	mux.HandleFunc("GET /{id}", app.MakeGetHandle(store))
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		panic(err)

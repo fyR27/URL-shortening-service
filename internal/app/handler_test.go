@@ -2,7 +2,6 @@ package app
 
 import (
 	"io"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -58,9 +57,9 @@ func TestPostHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			request, _ := http.NewRequest(tt.want.method, tt.want.host, tt.want.body)
+			store := NewStorage()
 			w := httptest.NewRecorder()
-			PostHandle(w, request)
+			MakePostHandle(store)
 
 			res := w.Result()
 
@@ -96,12 +95,13 @@ func TestGetHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			store := NewStorage()
 			newUrl := "/" + uuid.NewString()
-			storage[newUrl] = tt.want.body
+			store.store[newUrl] = tt.want.body
 
-			request, _ := http.NewRequest(tt.want.method, tt.want.host+newUrl, nil)
+			//request, _ := http.NewRequest(tt.want.method, tt.want.host+newUrl, nil)
 			w := httptest.NewRecorder()
-			GetHandle(w, request)
+			MakeGetHandle(store)
 
 			res := w.Result()
 
