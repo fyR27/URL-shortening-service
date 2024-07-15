@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 )
 
@@ -20,19 +18,18 @@ func NewStore() *Storage {
 		store: make(map[string]string),
 	}
 }
-func (s *Storage) AddNewURL(url []byte) string {
+
+func (s *Storage) AddNewURL(body []byte) string {
 	newURL := &ParsedURL{
 		ID:  uuid.NewString(),
-		URL: string(url),
+		URL: string(body[:]),
 	}
 	s.store[newURL.ID] = newURL.URL
-	fmt.Println(s.store)
 	return newURL.ID
 }
 
-func (s *Storage) FindAddr(id string) string {
-
-	if value, ok := s.store[id]; ok {
+func (s *Storage) FindAddr(url string) string {
+	if value, ok := s.store[url]; ok {
 		return value
 	}
 	return "Bad id"
