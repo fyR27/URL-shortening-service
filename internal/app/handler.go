@@ -17,7 +17,7 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 
-		data := []byte("http://localhost:8080" + store.AddNewURL(body))
+		data := []byte("http://localhost:8080/" + store.AddNewURL(body))
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
@@ -34,9 +34,7 @@ func MakeGetHandle(store *Storage) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
-		data := store.FindAddr(r.URL.Path)
-
+		data := store.FindAddr(r.URL.Path[1:])
 		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
 }
