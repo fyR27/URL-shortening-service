@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	store := app.NewStorage()
+	store := new(app.Storage)
 	store = app.NewStore()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /", app.MakePostHandle(store))
