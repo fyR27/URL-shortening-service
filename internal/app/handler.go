@@ -40,7 +40,7 @@ func MakeGetHandle(store *Storage) http.HandlerFunc {
 			return
 		}
 
-		data := s.FindAddr(r.URL.Path)
+		data := s.FindAddr(r.URL.Path[1:])
 		if data == "Bad id" {
 			w.WriteHeader(http.StatusBadRequest)
 		}
