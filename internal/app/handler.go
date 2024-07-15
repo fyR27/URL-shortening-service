@@ -29,17 +29,16 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 
 func MakeGetHandle(store *Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var s Storage
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		
-		data := s.FindAddr(r.URL.Path[1:])
+
+		data := store.FindAddr(r.URL.Path[1:])
 		if data == "Bad id" {
 			w.WriteHeader(http.StatusBadRequest)
 		}
-		
+
 		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
 }
