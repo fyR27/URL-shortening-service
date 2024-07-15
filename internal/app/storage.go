@@ -15,7 +15,7 @@ type Storage struct {
 	store map[string]string
 }
 
-func NewStorage() *Storage {
+func NewStore() *Storage {
 	return &Storage{
 		store: make(map[string]string),
 	}
