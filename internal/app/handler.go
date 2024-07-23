@@ -8,13 +8,10 @@ import (
 func MakePostHandle(store *Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if r.Method != http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil || string(body) == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
-		}
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
 		}
 
 		data := []byte("http://localhost:8080/" + store.AddNewURL(body))
@@ -30,11 +27,11 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 
 func MakeGetHandle(store *Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+		data := store.FindAddr(r.URL.Path[1:])
+		if data == "Bad id" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		data := store.FindAddr(r.URL.Path[1:])
 		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
 }

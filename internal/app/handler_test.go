@@ -34,23 +34,13 @@ func TestPostHandle(t *testing.T) {
 			},
 		},
 		{
-			name: "Check true method",
-			want: want{
-				host:        "http://localhost:8080",
-				body:        strings.NewReader("http://string.ru"),
-				method:      "GET",
-				code:        400,
-				contentType: "",
-			},
-		},
-		{
-			name: "Check body",
+			name: "Check empty body",
 			want: want{
 				host:        "http://localhost:8080",
 				body:        strings.NewReader(""),
 				method:      "POST",
-				code:        201,
-				contentType: "text/plain",
+				code:        400,
+				contentType: "",
 			},
 		},
 	}
@@ -81,6 +71,7 @@ func TestGetHandle(t *testing.T) {
 		method string
 		path   string
 		code   int
+		body   string
 	}
 
 	tests := []struct {
@@ -88,12 +79,23 @@ func TestGetHandle(t *testing.T) {
 		want want
 	}{
 		{
-			name: "Try to GET with invalid ID",
+			name: "Try to GET with valid ID",
 			want: want{
-				host:   "http://localhost:8080",
+				host:   "http://localhost:8080/",
 				method: "GET",
 				path:   "/get/invalid",
 				code:   307,
+				body:   "http://yandex.ru",
+			},
+		},
+		{
+			name: "Try to GET with invalid ID",
+			want: want{
+				host:   "http://localhost:8080/",
+				method: "GET",
+				path:   "get/valid",
+				code:   400,
+				body:   "",
 			},
 		},
 	}
@@ -101,12 +103,11 @@ func TestGetHandle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
 			validID := uuid.NewString()
-			store.store[validID] = "http://yandex.ru"
-
-			req := httptest.NewRequest(tt.want.method, tt.want.host+tt.want.path+validID, nil)
-			if tt.name == "Try to GET with invalid ID" {
-				req = httptest.NewRequest(tt.want.method, tt.want.host+tt.want.path+"invalid", nil)
+			if tt.want.body != "" {
+				store.store[validID] = tt.want.body
 			}
+
+			req := httptest.NewRequest(tt.want.method, tt.want.host+validID, nil)
 			w := httptest.NewRecorder()
 
 			handler := MakeGetHandle(store)
