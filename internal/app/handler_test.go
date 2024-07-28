@@ -118,7 +118,8 @@ func TestGetHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SendRequestToServer(t, tt.want.code, tt.want.method, tt.want.body)
+			res := SendRequestToServer(t, tt.want.code, tt.want.method, tt.want.body)
+			defer res.Body.Close()
 		})
 	}
 }
