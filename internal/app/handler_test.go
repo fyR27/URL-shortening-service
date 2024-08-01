@@ -62,7 +62,6 @@ func TestPostHandle(t *testing.T) {
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			if tt.want.contentType != "text/plain" {
 				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
-				fmt.Println(res.Header.Get("Content-Type"))
 				fmt.Print("Content type is not equal to text/plain \n")
 			}
 		})
