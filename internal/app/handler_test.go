@@ -56,7 +56,9 @@ func TestPostHandle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
 			handler := MakePostHandle(store)
+
 			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.want.method, tt.want.body)
+			res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			if tt.want.contentType != "text/plain" {
@@ -103,8 +105,11 @@ func TestGetHandle(t *testing.T) {
 			if tt.want.body != "" {
 				store.store[validID] = tt.want.body
 			}
+
 			handler := MakeGetHandle(store)
+
 			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.want.method, uuid.Nil.String())
+			res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 		})
