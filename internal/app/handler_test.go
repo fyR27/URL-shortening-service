@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,12 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func SendRequestToServer(t *testing.T, url, method, body string) (*httptest.ResponseRecorder, *http.Request) {
+func SendRequestToServer(t *testing.T, handler *http.HandlerFunc, url, method, body string) *http.Response {
 
 	req := httptest.NewRequest(method, url, strings.NewReader(body))
 	w := httptest.NewRecorder()
 
-	return w, req
+	handler.ServeHTTP(w, req)
+
+	res := w.Result()
+	res.Body.Close()
+
+	return res
 }
 
 func TestPostHandle(t *testing.T) {
@@ -51,18 +55,12 @@ func TestPostHandle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
-			w, req := SendRequestToServer(t, "http://localhost:8080/", tt.want.method, tt.want.body)
-
 			handler := MakePostHandle(store)
-			handler.ServeHTTP(w, req)
-
-			res := w.Result()
-			defer res.Body.Close()
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.want.method, tt.want.body)
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			if tt.want.contentType != "text/plain" {
-				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
-				fmt.Print("Content type is not equal to text/plain \n")
+				assert.Equalf(t, res.Header.Get("Content-Type"), tt.want.contentType, "Content type %s is not equal to %s")
 			}
 		})
 	}
@@ -105,12 +103,8 @@ func TestGetHandle(t *testing.T) {
 			if tt.want.body != "" {
 				store.store[validID] = tt.want.body
 			}
-			w, req := SendRequestToServer(t, "http://localhost:8080/"+validID, tt.want.method, uuid.Nil.String())
-			hanler := MakeGetHandle(store)
-			hanler.ServeHTTP(w, req)
-
-			res := w.Result()
-			defer res.Body.Close()
+			handler := MakeGetHandle(store)
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.want.method, uuid.Nil.String())
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 		})
