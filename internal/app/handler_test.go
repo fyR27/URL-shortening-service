@@ -18,7 +18,6 @@ func SendRequestToServer(t *testing.T, handler *http.HandlerFunc, url, method, b
 	handler.ServeHTTP(w, req)
 
 	res := w.Result()
-	defer res.Body.Close()
 
 	return res
 }
@@ -58,6 +57,7 @@ func TestPostHandle(t *testing.T) {
 			handler := MakePostHandle(store)
 
 			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.method, tt.body)
+			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			if res.StatusCode != http.StatusCreated {
@@ -112,6 +112,7 @@ func TestGetHandle(t *testing.T) {
 			handler := MakeGetHandle(store)
 
 			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.method, uuid.Nil.String())
+			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 		})
