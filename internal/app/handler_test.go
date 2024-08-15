@@ -18,37 +18,36 @@ func SendRequestToServer(t *testing.T, handler *http.HandlerFunc, url, method, b
 	handler.ServeHTTP(w, req)
 
 	res := w.Result()
-	res.Body.Close()
+	defer res.Body.Close()
 
 	return res
 }
 
 func TestPostHandle(t *testing.T) {
 	type want struct {
-		method      string
-		body        string
 		code        int
 		contentType string
 	}
 
 	tests := []struct {
-		name string
-		want want
+		name   string
+		method string
+		body   string
+		want   want
 	}{
 		{
-			name: "Try to POST http://yandex.ru",
+			name:   "Try to POST http://yandex.ru",
+			method: "POST",
+			body:   "http://yandex.ru",
 			want: want{
-				method:      "POST",
-				body:        "http://yandex.ru",
 				code:        http.StatusCreated,
-				contentType: "text/plain",
 			},
 		},
 		{
-			name: "Check empty body",
+			name:   "Check empty body",
+			method: "POST",
 			want: want{
-				method: "POST",
-				code:   http.StatusBadRequest,
+				code: http.StatusBadRequest,
 			},
 		},
 	}
@@ -57,44 +56,46 @@ func TestPostHandle(t *testing.T) {
 			store := NewStore()
 			handler := MakePostHandle(store)
 
-			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.want.method, tt.want.body)
-			res.Body.Close()
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.method, tt.body)
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
-			if tt.want.contentType != "text/plain" {
+			if res.StatusCode != http.StatusCreated {
 				assert.Equalf(t, res.Header.Get("Content-Type"), tt.want.contentType, "Content type %s is not equal to %s")
+			}else {
+				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contenType)
 			}
+
 		})
 	}
 }
 
 func TestGetHandle(t *testing.T) {
 	type want struct {
-		method string
-		path   string
-		code   int
-		body   string
+		code int
 	}
 
 	tests := []struct {
-		name string
-		want want
+		name   string
+		method string
+		path   string
+		body   string
+		want   want
 	}{
 		{
-			name: "Try to GET with valid ID",
+			name:   "Try to GET with valid ID",
+			method: "GET",
+			path:   "/get/invalid",
+			body:   "http://yandex.ru",
 			want: want{
-				method: "GET",
-				path:   "/get/invalid",
-				code:   http.StatusTemporaryRedirect,
-				body:   "http://yandex.ru",
+				code: http.StatusTemporaryRedirect,
 			},
 		},
 		{
-			name: "Try to GET with invalid ID",
+			name:   "Try to GET with invalid ID",
+			method: "GET",
+			path:   "get/valid",
 			want: want{
-				method: "GET",
-				path:   "get/valid",
-				code:   http.StatusBadRequest,
+				code: http.StatusBadRequest,
 			},
 		},
 	}
@@ -102,14 +103,14 @@ func TestGetHandle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
 			validID := uuid.NewString()
-			if tt.want.body != "" {
-				store.store[validID] = tt.want.body
+
+			if tt.body != "" {
+				store.store[validID] = tt.body
 			}
 
 			handler := MakeGetHandle(store)
 
-			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.want.method, uuid.Nil.String())
-			res.Body.Close()
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.method, uuid.Nil.String())
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 		})
