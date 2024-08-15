@@ -41,6 +41,7 @@ func TestPostHandle(t *testing.T) {
 			body:   "http://yandex.ru",
 			want: want{
 				code:        http.StatusCreated,
+				contentType: "text/plain",
 			},
 		},
 		{
