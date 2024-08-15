@@ -1,7 +1,7 @@
 package app
 
 import (
-	"io"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -10,92 +10,93 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func SendRequestToServer(t *testing.T, handler *http.HandlerFunc, url, method, body string) *http.Response {
+
+	req := httptest.NewRequest(method, url, strings.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	res := w.Result()
+
+	return res
+}
+
 func TestPostHandle(t *testing.T) {
 	type want struct {
-		host        string
-		method      string
-		body        io.Reader
 		code        int
 		contentType string
 	}
 
 	tests := []struct {
-		name string
-		want want
+		name   string
+		method string
+		body   string
+		want   want
 	}{
 		{
-			name: "Try to POST http://yandex.ru",
+			name:   "Try to POST http://yandex.ru",
+			method: "POST",
+			body:   "http://yandex.ru",
 			want: want{
-				host:        "http://localhost:8080",
-				method:      "POST",
-				body:        strings.NewReader("http://yandex.ru"),
-				code:        201,
+				code:        http.StatusCreated,
 				contentType: "text/plain",
 			},
 		},
 		{
-			name: "Check empty body",
+			name:   "Check empty body",
+			method: "POST",
 			want: want{
-				host:        "http://localhost:8080",
-				body:        strings.NewReader(""),
-				method:      "POST",
-				code:        400,
-				contentType: "",
+				code: http.StatusBadRequest,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
-			req := httptest.NewRequest(tt.want.method, tt.want.host, tt.want.body)
-			w := httptest.NewRecorder()
-
 			handler := MakePostHandle(store)
-			handler.ServeHTTP(w, req)
 
-			res := w.Result()
-
-			assert.Equal(t, tt.want.code, res.StatusCode)
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.method, tt.body)
 			defer res.Body.Close()
 
-			if tt.want.contentType != "" {
-				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
+			assert.Equal(t, tt.want.code, res.StatusCode)
+			if res.StatusCode != http.StatusCreated {
+				assert.Equalf(t, res.Header.Get("Content-Type"), tt.want.contentType, "Content type %s is not equal to %s")
+			} else {
+				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contentType)
 			}
+
 		})
 	}
 }
 
 func TestGetHandle(t *testing.T) {
 	type want struct {
-		host   string
-		method string
-		path   string
-		code   int
-		body   string
+		code int
 	}
 
 	tests := []struct {
-		name string
-		want want
+		name   string
+		method string
+		path   string
+		body   string
+		want   want
 	}{
 		{
-			name: "Try to GET with valid ID",
+			name:   "Try to GET with valid ID",
+			method: "GET",
+			path:   "/get/invalid",
+			body:   "http://yandex.ru",
 			want: want{
-				host:   "http://localhost:8080/",
-				method: "GET",
-				path:   "/get/invalid",
-				code:   307,
-				body:   "http://yandex.ru",
+				code: http.StatusTemporaryRedirect,
 			},
 		},
 		{
-			name: "Try to GET with invalid ID",
+			name:   "Try to GET with invalid ID",
+			method: "GET",
+			path:   "get/valid",
 			want: want{
-				host:   "http://localhost:8080/",
-				method: "GET",
-				path:   "get/valid",
-				code:   400,
-				body:   "",
+				code: http.StatusBadRequest,
 			},
 		},
 	}
@@ -103,20 +104,17 @@ func TestGetHandle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
 			validID := uuid.NewString()
-			if tt.want.body != "" {
-				store.store[validID] = tt.want.body
+
+			if tt.body != "" {
+				store.store[validID] = tt.body
 			}
 
-			req := httptest.NewRequest(tt.want.method, tt.want.host+validID, nil)
-			w := httptest.NewRecorder()
-
 			handler := MakeGetHandle(store)
-			handler.ServeHTTP(w, req)
 
-			res := w.Result()
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.method, uuid.Nil.String())
+			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
-			defer res.Body.Close()
 		})
 	}
 }
