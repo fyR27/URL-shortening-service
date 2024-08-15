@@ -63,7 +63,7 @@ func TestPostHandle(t *testing.T) {
 			if res.StatusCode != http.StatusCreated {
 				assert.Equalf(t, res.Header.Get("Content-Type"), tt.want.contentType, "Content type %s is not equal to %s")
 			}else {
-				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contenType)
+				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contentType)
 			}
 
 		})
