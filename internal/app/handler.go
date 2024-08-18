@@ -11,11 +11,10 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 		body, err := io.ReadAll(r.Body)
 		if err != nil || string(body) == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			return 
-		} 
+			return
+		}
 
 		data := []byte("http://localhost:8080/" + store.AddNewURL(body))
-		
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
 
@@ -27,7 +26,6 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 
 func MakeGetHandle(store *Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		data := store.FindAddr(r.URL.Path[1:])
 		if data == "Bad id" {
 			w.WriteHeader(http.StatusBadRequest)
