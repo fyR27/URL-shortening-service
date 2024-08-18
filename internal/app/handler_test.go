@@ -56,12 +56,12 @@ func TestPostHandle(t *testing.T) {
 			store := NewStore()
 			handler := MakePostHandle(store)
 
-			res := SendRequestToServer(t, &handler, "http://localhost:8080/", tt.method, tt.body)
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/", http.MethodPost, tt.body)
 			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			if res.StatusCode != http.StatusCreated {
-				assert.Equalf(t, res.Header.Get("Content-Type"), tt.want.contentType, "Content type %s is not equal to %s")
+				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contentType)
 			} else {
 				assert.Equal(t, res.Header.Get("Content-Type"), tt.want.contentType)
 			}
@@ -111,7 +111,7 @@ func TestGetHandle(t *testing.T) {
 
 			handler := MakeGetHandle(store)
 
-			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, tt.method, uuid.Nil.String())
+			res := SendRequestToServer(t, &handler, "http://localhost:8080/"+validID, http.MethodGet, uuid.Nil.String())
 			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
