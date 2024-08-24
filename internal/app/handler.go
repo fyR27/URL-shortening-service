@@ -15,7 +15,6 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 		}
 
 		data := []byte("http://localhost:8080/" + store.AddNewURL(body))
-
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
 
