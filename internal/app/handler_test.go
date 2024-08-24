@@ -30,11 +30,13 @@ func TestPostHandle(t *testing.T) {
 
 	tests := []struct {
 		name   string
+		method string
 		body   string
 		want   want
 	}{
 		{
 			name:   "Try to POST http://yandex.ru",
+			method: "POST",
 			body:   "http://yandex.ru",
 			want: want{
 				code:        http.StatusCreated,
@@ -43,6 +45,7 @@ func TestPostHandle(t *testing.T) {
 		},
 		{
 			name:   "Check empty body",
+			method: "POST",
 			want: want{
 				code: http.StatusBadRequest,
 			},
@@ -74,6 +77,7 @@ func TestGetHandle(t *testing.T) {
 
 	tests := []struct {
 		name   string
+		method string
 		path   string
 		body   string
 		want   want
@@ -81,6 +85,7 @@ func TestGetHandle(t *testing.T) {
 		{
 			name:   "Try to GET with valid ID",
 			path:   "/get/invalid",
+			method: "GET",
 			body:   "http://yandex.ru",
 			want: want{
 				code: http.StatusTemporaryRedirect,
@@ -88,6 +93,7 @@ func TestGetHandle(t *testing.T) {
 		},
 		{
 			name:   "Try to GET with invalid ID",
+			method: "GET",
 			path:   "get/valid",
 			want: want{
 				code: http.StatusBadRequest,
