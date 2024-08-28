@@ -4,15 +4,16 @@ import (
 	"net/http"
 
 	"github.com/fyR27/URL-shortening-service/internal/app"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
+	r := chi.NewMux()
 	store := app.NewStore()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /", app.MakePostHandle(store))
-	mux.HandleFunc("GET /{id}", app.MakeGetHandle(store))
+	r.Post("/", app.MakePostHandle(store))
+	r.Get("/{id}", app.MakeGetHandle(store))
 
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", r); err != nil {
 		panic(err)
 	}
 }
