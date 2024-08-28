@@ -9,17 +9,17 @@ on:
 jobs:
   statictest:
     runs-on: ubuntu-latest
-    container: golang:1.23
+    container: golang:1.22
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Download statictest binary
-        uses: robinraju/release-downloader@v1.8
+        uses: robinraju/release-downloader@v1.11
         with:
           repository: Yandex-Practicum/go-autotests
           latest: false
-          tag: "v0.10.12"
+          tag: "v0.10.11"
           fileName: statictest
           out-file-path: .tools
           token: ${{ secrets.GITHUB_TOKEN }}
