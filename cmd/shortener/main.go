@@ -3,17 +3,21 @@ package main
 import (
 	"net/http"
 
+	"github.com/fyR27/URL-shortening-service/config"
 	"github.com/fyR27/URL-shortening-service/internal/app"
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
+	c := config.NewConfig()
+	config.ParseFlags(c)
 	r := chi.NewMux()
 	store := app.NewStore()
-	r.Post("/", app.MakePostHandle(store))
+
+	r.Post("/", app.MakePostHandle(store, c.Host, c.Url))
 	r.Get("/{id}", app.MakeGetHandle(store))
 
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	if err := http.ListenAndServe(c.Host, r); err != nil {
 		panic(err)
 	}
 }
