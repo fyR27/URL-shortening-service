@@ -1,9 +1,5 @@
 package app
 
-import (
-	"github.com/google/uuid"
-)
-
 type ParsedURL struct {
 	ID  string
 	URL string
@@ -19,9 +15,9 @@ func NewStore() *Storage {
 	}
 }
 
-func (s *Storage) AddNewURL(body []byte) string {
+func (s *Storage) AddNewURL(body, url []byte) string {
 	newURL := &ParsedURL{
-		ID:  uuid.NewString(),
+		ID:  string(url),
 		URL: string(body[:]),
 	}
 	s.store[newURL.ID] = newURL.URL
