@@ -14,7 +14,7 @@ func main() {
 	r := chi.NewMux()
 	store := app.NewStore()
 
-	r.Post("/", app.MakePostHandle(store, c.Host, c.Url))
+	r.Post("/", app.MakePostHandle(store, c.Host, c.URL))
 	r.Get("/{id}", app.MakeGetHandle(store))
 
 	if err := http.ListenAndServe(c.Host, r); err != nil {
