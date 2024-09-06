@@ -14,11 +14,25 @@ func MakePostHandle(store *Storage, host, url string) http.HandlerFunc {
 			return
 		}
 
-		data := []byte(url + host[len(host)-5:] + "/" + store.AddNewURL(body))
+		id := store.AddNewURL(body)
+
+		// Формирование итогового сокращённого URL
+		parsedBaseURL, err := url.Parse(baseURL)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// Установка пути в сокращённый URL
+		parsedBaseURL.Path = path.Join(parsedBaseURL.Path, id)
+
+		// Формирование итоговой строки URL
+		shortURL := parsedBaseURL.String()
+
+		// Отправка ответа
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
-
-		if _, err := w.Write(data); err != nil {
+		if _, err := w.Write([]byte(shortURL)); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
