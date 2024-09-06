@@ -20,6 +20,6 @@ func NewConfig() *Config {
 
 func ParseFlags(c *Config) {
 	flag.StringVar(&c.Host, "a", ":8080", "address to run server ")
-	flag.StringVar(&c.URL, "b", uuid.Newstring(), "url to get base url")
+	flag.StringVar(&c.URL, "b", uuid.NewString(), "url to get base url")
 	flag.Parse()
 }
