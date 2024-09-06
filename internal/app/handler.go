@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -15,7 +14,7 @@ func MakePostHandle(store *Storage, host, url string) http.HandlerFunc {
 			return
 		}
 
-		data := []byte(url + host + "/" + store.AddNewURL(body))
+		data := []byte(url + host[len(host)-5:] + "/" + store.AddNewURL(body))
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
 
@@ -32,7 +31,7 @@ func MakeGetHandle(store *Storage) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		fmt.Println(data)
+
 		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
 }
