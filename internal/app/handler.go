@@ -8,7 +8,7 @@ import (
 
 func ParsedBaseURL(host, url, body string) string {
 	if url != "" && url != "http://localhost" || ((url[len(url)-1] >= 48 && url[len(url)-1] <= 57) && url != "http://localhost") {
-		return "http://" + url + "/" + body
+		return url + "/" + body
 	} else {
 		return url + host + "/" + body
 	}
