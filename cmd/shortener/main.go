@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	c := config.NewConfig()
-	config.ParseFlags(c)
 	r := chi.NewMux()
 	store := app.NewStore()
+	c := config.NewConfig()
+	config.ParseFlags(c)
 
-	r.Post("/", app.MakePostHandle(store, c.Host, c.URL))
+	r.Post("/", app.MakePostHandle(store, c))
 	r.Get("/{id}", app.MakeGetHandle(store))
 
 	if err := http.ListenAndServe(c.Host, r); err != nil {
