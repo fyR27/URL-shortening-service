@@ -1,20 +1,13 @@
 package app
 
 import (
-	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/fyR27/URL-shortening-service/config"
 )
 
-func ParsedBaseURL(host, url, body string) string {
-	if url != "" && url != "http://localhost" || ((url[len(url)-1] >= 48 && url[len(url)-1] <= 57) && url != "http://localhost") {
-		return url + "/" + body
-	} else {
-		return url + host + "/" + body
-	}
-}
-
-func MakePostHandle(store *Storage, host, url string) http.HandlerFunc {
+func MakePostHandle(store *Storage, c *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		body, err := io.ReadAll(r.Body)
@@ -23,13 +16,12 @@ func MakePostHandle(store *Storage, host, url string) http.HandlerFunc {
 			return
 		}
 
-		parsedBody := store.AddNewURL(body)
-		data := ParsedBaseURL(host, url, parsedBody)
-		fmt.Println(data)
+		parsedBody := store.AddNewURL(body, c)
+
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
 
-		if _, err := w.Write([]byte(data)); err != nil {
+		if _, err := w.Write([]byte(parsedBody)); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
