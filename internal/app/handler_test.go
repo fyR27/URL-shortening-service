@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -40,7 +41,7 @@ func TestPostHandle(t *testing.T) {
 		{
 			name: "Try to POST http://yandex.ru",
 			host: ":8080",
-			url:  "qsd54gFg",
+			url:  "http://local",
 			body: "http://yandex.ru",
 
 			want: want{
@@ -51,6 +52,7 @@ func TestPostHandle(t *testing.T) {
 		{
 			name: "Check empty body",
 			host: ":8081",
+			url:  "http://localhost",
 			want: want{
 				code: http.StatusBadRequest,
 			},
@@ -63,7 +65,9 @@ func TestPostHandle(t *testing.T) {
 			c.Host, c.URL = tt.host, tt.url
 			handler := MakePostHandle(store, c)
 
-			res := SendRequestToServer(t, &handler, "http://localhost"+tt.host+"/", http.MethodPost, tt.body)
+			fmt.Println(handler)
+
+			res := SendRequestToServer(t, &handler, tt.url+tt.host+"/", http.MethodPost, tt.body)
 			defer res.Body.Close()
 
 			assert.Equal(t, tt.want.code, res.StatusCode)
