@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fyR27/URL-shortening-service/config"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -58,7 +59,9 @@ func TestPostHandle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewStore()
-			handler := MakePostHandle(store, tt.host, tt.url)
+			c := config.NewConfig()
+			c.Host, c.URL = tt.host, tt.url
+			handler := MakePostHandle(store, c)
 
 			res := SendRequestToServer(t, &handler, "http://localhost"+tt.host+"/", http.MethodPost, tt.body)
 			defer res.Body.Close()
