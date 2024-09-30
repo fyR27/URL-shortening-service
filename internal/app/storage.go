@@ -14,7 +14,7 @@ type ParsedURL struct {
 
 type Storage struct {
 	store   map[string]string
-	baseURl string
+	baseURL string
 }
 
 func validURL(c *config.Config) string {
@@ -28,7 +28,7 @@ func validURL(c *config.Config) string {
 func NewStore(c *config.Config) *Storage {
 	return &Storage{
 		store:   make(map[string]string),
-		baseURl: validURL(c),
+		baseURL: validURL(c),
 	}
 }
 
@@ -38,7 +38,7 @@ func (s *Storage) AddNewURL(body []byte) string {
 		URL: string(body[:]),
 	}
 	s.store[newURL.ID] = newURL.URL
-	return s.baseURl + newURL.ID
+	return s.baseURL + newURL.ID
 }
 
 func (s *Storage) FindAddr(url string) string {
