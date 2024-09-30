@@ -18,11 +18,12 @@ type Storage struct {
 }
 
 func validURL(c *config.Config) string {
-	_, err := regexp.MatchString("[1-9]", c.URL[len(c.URL)-4:len(c.URL)])
-	if err != nil {
-		return c.URL + c.Host + "/"
+
+	url, _ := regexp.MatchString("[1-9]", c.URL[len(c.URL)-4:len(c.URL)])
+	if url == bool(true) {
+		return c.URL + "/"
 	}
-	return c.URL + "/"
+	return c.URL + c.Host + "/"
 }
 
 func NewStore(c *config.Config) *Storage {
