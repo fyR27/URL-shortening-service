@@ -1,6 +1,8 @@
 package app
 
 import (
+	"regexp"
+
 	"github.com/fyR27/URL-shortening-service/config"
 	"github.com/google/uuid"
 )
@@ -11,30 +13,32 @@ type ParsedURL struct {
 }
 
 type Storage struct {
-	store map[string]string
+	store   map[string]string
+	baseURl string
 }
 
-func NewStore() *Storage {
-	return &Storage{
-		store: make(map[string]string),
-	}
-}
-
-func ValidURL(c *config.Config) string {
-	if c.URL[len(c.URL)-1] >= 48 && c.URL[len(c.URL)-1] <= 57 {
+func validURL(c *config.Config) string {
+	_, err := regexp.MatchString("[1-9]", c.URL[len(c.URL)-4:len(c.URL)])
+	if err != nil {
 		return c.URL + "/"
-	} else {
-		return c.URL + c.Host + "/"
+	}
+	return c.URL + c.Host + "/"
+}
+
+func NewStore(c *config.Config) *Storage {
+	return &Storage{
+		store:   make(map[string]string),
+		baseURl: validURL(c),
 	}
 }
 
-func (s *Storage) AddNewURL(body []byte, c *config.Config) string {
+func (s *Storage) AddNewURL(body []byte) string {
 	newURL := &ParsedURL{
 		ID:  uuid.NewString(),
 		URL: string(body[:]),
 	}
 	s.store[newURL.ID] = newURL.URL
-	return ValidURL(c) + newURL.ID
+	return s.baseURl + newURL.ID
 }
 
 func (s *Storage) FindAddr(url string) string {

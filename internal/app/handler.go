@@ -3,11 +3,9 @@ package app
 import (
 	"io"
 	"net/http"
-
-	"github.com/fyR27/URL-shortening-service/config"
 )
 
-func MakePostHandle(store *Storage, c *config.Config) http.HandlerFunc {
+func MakePostHandle(store *Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		body, err := io.ReadAll(r.Body)
@@ -16,7 +14,7 @@ func MakePostHandle(store *Storage, c *config.Config) http.HandlerFunc {
 			return
 		}
 
-		parsedBody := store.AddNewURL(body, c)
+		parsedBody := store.AddNewURL(body)
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -60,12 +59,10 @@ func TestPostHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := NewStore()
 			c := config.NewConfig()
 			c.Host, c.URL = tt.host, tt.url
-			handler := MakePostHandle(store, c)
-
-			fmt.Println(handler)
+			store := NewStore(c)
+			handler := MakePostHandle(store)
 
 			res := SendRequestToServer(t, &handler, tt.url+tt.host+"/", http.MethodPost, tt.body)
 			defer res.Body.Close()
@@ -110,7 +107,8 @@ func TestGetHandle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := NewStore()
+			c := config.NewConfig()
+			store := NewStore(c)
 			validID := uuid.NewString()
 
 			if tt.body != "" {

@@ -10,11 +10,11 @@ import (
 
 func main() {
 	r := chi.NewMux()
-	store := app.NewStore()
 	c := config.NewConfig()
 	config.ParseFlags(c)
+	store := app.NewStore(c)
 
-	r.Post("/", app.MakePostHandle(store, c))
+	r.Post("/", app.MakePostHandle(store))
 	r.Get("/{id}", app.MakeGetHandle(store))
 
 	if err := http.ListenAndServe(c.Host, r); err != nil {
