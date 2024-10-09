@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var re = regexp.MustCompile(`https?:\/\/([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+)*(:[0-9])`)
+var re = regexp.MustCompile(`https?:\/\/([\.a-zA-Z0-9-]+)(:[0-9]+)`)
 
 type ParsedURL struct {
 	ID  string
