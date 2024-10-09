@@ -14,12 +14,13 @@ func MakePostHandle(store *Storage) http.HandlerFunc {
 			return
 		}
 
-		data := []byte("http://localhost:8080/" + store.AddNewURL(body))
+		parsedBody := store.AddNewURL(body)
+
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
 
-		if _, err := w.Write(data); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+		if _, err := w.Write([]byte(parsedBody)); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 }
@@ -30,8 +31,8 @@ func MakeGetHandle(store *Storage) http.HandlerFunc {
 		if data == "Bad id" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
-		} 
-		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
+		}
 
+		http.Redirect(w, r, data, http.StatusTemporaryRedirect)
 	}
 }
