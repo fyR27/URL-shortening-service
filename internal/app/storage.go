@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var re = regexp.MustCompile(`http(:)\/\/([a-zA-Z0-9]+):[0-9]+`)
+var re = regexp.MustCompile(`https?:\/\/([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+)*(:[0-9])?`)
 
 type ParsedURL struct {
 	ID  string
@@ -20,8 +20,8 @@ type Storage struct {
 }
 
 func validURL(c *config.Config) string {
-	mathced := re.MatchString(c.URL)
-	if mathced == bool(true) {
+	matched := re.MatchString(c.URL)
+	if matched == bool(true) {
 		return c.URL + "/"
 	}
 	return c.URL + c.Host + "/"
